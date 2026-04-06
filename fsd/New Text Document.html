@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Fundamentals - Full Stack Development</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            /* Hide scrollbars for presentation mode */
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100vw;
+            max-width: 1600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 60px 5%;
+            /* Neatly balanced padding */
+            display: none;
+            overflow-y: auto;
+            overflow-x: hidden;
+            animation: slideIn 0.5s ease-in-out;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-header {
+            margin-bottom: 40px;
+        }
+
+        .slide-title {
+            font-size: 46px;
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .slide-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 60%;
+            height: 4px;
+            background: #48bb78;
+            border-radius: 2px;
+        }
+
+        .slide-subtitle {
+            font-size: 24px;
+            color: #4a5568;
+            font-weight: 400;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .content-block {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #48bb78;
+        }
+
+        .block-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .block-content {
+            font-size: 20px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            color: #4a5568;
+        }
+
+        .bullet-list li:before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            color: #48bb78;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            line-height: 1.5;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 30px;
+            right: 60px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .nav-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 30px;
+            left: 60px;
+            font-size: 16px;
+            color: #718096;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .highlight-box h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box p {
+            font-size: 20px;
+            line-height: 1.6;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .step-box {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .step-box:hover {
+            border-color: #48bb78;
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.1);
+        }
+
+        .step-number {
+            background: #48bb78;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 18px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 18px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background-color: #48bb78;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+
+
+        .material-icons {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; text-align: center;">
+                <div class="slide-header" style="margin-bottom: 20px;">
+                    <h1 class="slide-title">MongoDB Fundamentals</h1>
+                    <p class="slide-subtitle">Full Stack Development - Experiment No. 5A</p>
+                </div>
+                <div class="image-container">
+                    <img src="1.png" alt="MongoDB Logo" style="max-height: 150px; object-fit: contain; margin-bottom: 20px;">
+                </div>
+                <div class="highlight-box" style="text-align: center; max-width: 800px; margin: 30px auto; width: 100%;">
+                    <h3>Fr. Conceicao Rodrigues College of Engineering</h3>
+                    <p>Department of Computer Engineering<br>
+                        Academic Year 2025-2026 | SE Computer Engineering<br>
+                        Subject: Full Stack Development (25VSE12CE03)</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">1 / 19</div>
+        </div>
+
+        <!-- Slide 2: Introduction to MongoDB -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Introduction to MongoDB</h1>
+            </div>
+            <div class="content-grid">
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">storage</span>
+                        What is MongoDB?
+                    </h3>
+                    <div class="block-content">
+                        <ul class="bullet-list">
+                            <li>NoSQL database</li>
+                            <li>Stores data in JSON-like documents</li>
+                            <li>No tables and rows</li>
+                            <li>Organizes data in collections</li>
+                            <li>Handles unstructured/semi-structured data</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">architecture</span>
+                        Key Features
+                    </h3>
+                    <div class="block-content">
+                        <ul class="bullet-list">
+                            <li>Flexible schema</li>
+                            <li>Horizontal scaling</li>
+                            <li>High availability</li>
+                            <li>Rich query language</li>
+                            <li>Document-oriented storage</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">2 / 19</div>
+        </div>
+
+        <!-- Slide 3: MongoDB Data Model -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">MongoDB Data Model</h1>
+            </div>
+            <div class="content-grid">
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">account_tree</span>
+                        Hierarchical Structure
+                    </h3>
+                    <div class="block-content">
+                        <p style="font-size: 24px; text-align: center; margin: 20px 0;">
+                            Database → Collection → Document
+                        </p>
+                    </div>
+                </div>
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">layers</span>
+                        MongoDB Basics
+                    </h3>
+                    <div class="table-container">
+                        <table>
+                            <tr>
+                                <th>Level</th>
+                                <th>Description</th>
+                            </tr>
+                            <tr>
+                                <td>Database</td>
+                                <td>Contains collections</td>
+                            </tr>
+                            <tr>
+                                <td>Collection</td>
+                                <td>Group of documents</td>
+                            </tr>
+                            <tr>
+                                <td>Documents</td>
+                                <td>JSON-like data</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="code-block">
+                {
+                "name": "Rahul",
+                "age": 21,
+                "course": "BCA"
+                }
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">3 / 19</div>
+        </div>
+
+        <!-- Slide 4: Setting up MongoDB Atlas -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Setting up MongoDB Atlas</h1>
+            </div>
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Go to MongoDB Atlas website</strong>
+                <p style="margin-top: 10px; color: #4a5568;">https://www.mongodb.com/try/download/community</p>
+            </div>
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Click Sign In</strong>
+                <p style="margin-top: 10px; color: #4a5568;">Register using Email or Google account</p>
+            </div>
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Complete Registration</strong>
+                <p style="margin-top: 10px; color: #4a5568;">Pop up the options and click Finish</p>
+            </div>
+            <div class="image-container" style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+                <img src="2.jpg" alt="MongoDB Atlas Sign In"
+                    style="max-height: 280px; width: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                <img src="3.jpg" alt="MongoDB Atlas Questionnaire"
+                    style="max-height: 280px; width: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">4 / 19</div>
+        </div>
+
+        <!-- Slide 5: Creating a Cluster -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Creating a Cluster</h1>
+            </div>
+            <div class="two-column">
+                <div>
+                    <div class="content-block" style="margin-bottom: 20px;">
+                        <h3 class="block-title">
+                            <span class="material-icons">cloud</span>
+                            What is a Cluster?
+                        </h3>
+                        <div class="block-content">
+                            <p>A group of interconnected servers that work together to store and manage your data,
+                                offering:</p>
+                            <ul class="bullet-list">
+                                <li>High availability</li>
+                                <li>Automatic scaling</li>
+                                <li>Fault tolerance</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">1</span>
+                        <strong>Click "Build a Database"</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">2</span>
+                        <strong>Choose FREE Shared Cluster</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">3</span>
+                        <strong>Select Cloud Provider (AWS) and Region</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">4</span>
+                        <strong>Click Create Cluster</strong>
+                    </div>
+                </div>
+                <div class="image-container"
+                    style="display: flex; align-items: center; justify-content: center; height: 100%; margin: 0;">
+                    <img src="4.jpg" alt="MongoDB Cluster Deployment Settings"
+                        style="max-width: 100%; max-height: 550px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">5 / 19</div>
+        </div>
+
+        <!-- Slide 6: Network Access Setup -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Network Access Setup</h1>
+            </div>
+            <div class="two-column">
+                <div>
+                    <div class="step-box">
+                        <span class="step-number">1</span>
+                        <strong>Go to Network Access</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">2</span>
+                        <strong>Click on "Add IP Access List"</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">3</span>
+                        <strong>Click on "Add IP Address"</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">4</span>
+                        <strong>Select: Allow Access from Anywhere (0.0.0.0/0)</strong>
+                        <p style="margin-top: 10px; color: #4a5568;">This allows connection to your cluster from
+                            anywhere</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h3>Important Note</h3>
+                        <p>Allowing access from anywhere is convenient for development but should be restricted in
+                            production
+                            environments for security.</p>
+                    </div>
+                </div>
+                <div class="image-container"
+                    style="display: flex; flex-direction: column; gap: 30px; align-items: center; justify-content: center; height: 100%; margin: 0;">
+                    <img src="5.jpg" alt="Network Access Sidebar"
+                        style="max-height: 35vh; max-width: 100%; width: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); object-fit: contain;">
+                    <img src="6.jpg" alt="Add IP Address Button"
+                        style="max-height: 35vh; max-width: 100%; width: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); object-fit: contain;">
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">6 / 19</div>
+        </div>
+
+        <!-- Slide 7: Creating Database & Collection -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Creating Database & Collection</h1>
+            </div>
+            <div class="two-column">
+                <div>
+                    <div class="step-box">
+                        <span class="step-number">1</span>
+                        <strong>Choose "Browse Collections"</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">2</span>
+                        <strong>Click on "Create Database"</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">3</span>
+                        <strong>Enter Database Name: <code>studentDB</code></strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">4</span>
+                        <strong>Enter Collection Name: <code>students</code></strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">5</span>
+                        <strong>Click Create</strong>
+                    </div>
+                </div>
+                <div class="image-container"
+                    style="display: flex; flex-direction: column; gap: 30px; align-items: center; justify-content: center; height: 100%; margin: 0;">
+                    <img src="7.jpg" alt="Browse Collections Button"
+                        style="max-height: 35vh; max-width: 100%; width: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); object-fit: contain;">
+                    <img src="8.jpg" alt="Create Database Button"
+                        style="max-height: 35vh; max-width: 100%; width: auto; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); object-fit: contain;">
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">7 / 19</div>
+        </div>
+
+        <!-- Slide 8: CRUD Operations Overview -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">CRUD Operations</h1>
+            </div>
+            <div class="image-container">
+                <img src="https://sfile.chatglm.cn/images-ppt/d4a35361b64e.png" alt="CRUD Operations"
+                    style="max-height: 250px;">
+            </div>
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>Operation</th>
+                        <th>Full Form</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><strong>C</strong></td>
+                        <td>Create</td>
+                        <td>Insert new data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R</strong></td>
+                        <td>Read</td>
+                        <td>Retrieve/view data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>U</strong></td>
+                        <td>Update</td>
+                        <td>Modify existing data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>D</strong></td>
+                        <td>Delete</td>
+                        <td>Remove data</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">8 / 19</div>
+        </div>
+
+        <!-- Slide 9: Create Operation -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Create Operation (Insert Data)</h1>
+            </div>
+            <div class="two-column">
+                <div>
+                    <div class="step-box">
+                        <span class="step-number">1</span>
+                        <strong>Click "Add Data"</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">2</span>
+                        <strong>Click "Insert Document"</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">3</span>
+                        <strong>Enter data in JSON editor</strong>
+                    </div>
+                    <div class="code-block">
+                        {
+                        "name": "Rahul",
+                        "age": 21,
+                        "course": "BCA"
+                        }
+                    </div>
+                    <div class="highlight-box">
+                        <h3>Task</h3>
+                        <p>Add 5 more records in the same database with different student information</p>
+                    </div>
+                </div>
+                <div class="image-container" style="display: flex; align-items: center; justify-content: center; height: 100%; margin: 0;">
+                    <img src="9.jpg" alt="Add Data in MongoDB Atlas" style="max-width: 100%; max-height: 500px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">9 / 19</div>
+        </div>
+
+        <!-- Slide 10: Read Operation -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Read Operation (View Data)</h1>
+            </div>
+            <div class="two-column">
+                <div>
+                    <div class="step-box">
+                        <span class="step-number">1</span>
+                        <strong>Open collection</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">2</span>
+                        <strong>View all documents in table format</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">3</span>
+                        <strong>Use Filter to search specific data</strong>
+                    </div>
+                    <div class="content-block">
+                        <h3 class="block-title">
+                            <span class="material-icons">filter_list</span>
+                            Example Filter
+                        </h3>
+                        <div class="code-block">
+                            {"age": 21}
+                        </div>
+                        <p style="margin-top: 15px; color: #4a5568;">This will return all documents where age is 21</p>
+                    </div>
+                </div>
+                <div class="image-container" style="display: flex; align-items: center; justify-content: center; height: 100%; margin: 0;">
+                    <img src="10.jpg" alt="Filter documents by age in MongoDB Atlas" style="max-width: 100%; max-height: 500px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">10 / 19</div>
+        </div>
+
+        <!-- Slide 11: Update Operation -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Update Operation (Modify Data)</h1>
+            </div>
+            <div class="two-column">
+                <div>
+                    <div class="step-box">
+                        <span class="step-number">1</span>
+                        <strong>Click Edit on the document</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">2</span>
+                        <strong>Modify the required field</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">3</span>
+                        <strong>Click Replace</strong>
+                    </div>
+                    <div class="content-block">
+                        <h3 class="block-title">
+                            <span class="material-icons">edit</span>
+                            Example Update
+                        </h3>
+                        <div class="block-content">
+                            <p>Update the name field from "Rahul" to "Prity" in the first document</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container" style="display: flex; align-items: center; justify-content: center; height: 100%; margin: 0;">
+                    <img src="11.jpg" alt="Edit document in MongoDB Atlas" style="max-width: 100%; max-height: 500px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">11 / 19</div>
+        </div>
+
+        <!-- Slide 12: Delete Operation -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Delete Operation (Remove Data)</h1>
+            </div>
+            <div class="two-column">
+                <div>
+                    <div class="step-box">
+                        <span class="step-number">1</span>
+                        <strong>Click Delete icon on the document</strong>
+                    </div>
+                    <div class="step-box">
+                        <span class="step-number">2</span>
+                        <strong>Confirm deletion</strong>
+                    </div>
+                    <div class="content-block">
+                        <h3 class="block-title">
+                            <span class="material-icons">warning</span>
+                            Important Note
+                        </h3>
+                        <div class="block-content">
+                            <p>Deleted documents cannot be recovered. Always double-check before confirming deletion.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container" style="display: flex; align-items: center; justify-content: center; height: 100%; margin: 0;">
+                    <img src="12.jpg" alt="Delete document in MongoDB Atlas" style="max-width: 100%; max-height: 500px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">12 / 19</div>
+        </div>
+
+        <!-- Slide 13: Query Operators -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Query Operators</h1>
+            </div>
+            <div class="two-column">
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">compare_arrows</span>
+                        Comparison Operators
+                    </h3>
+                    <div class="block-content">
+                        <ul class="bullet-list">
+                            <li><code>$gt</code> - Greater than</li>
+                            <li><code>$gte</code> - Greater than or equal</li>
+                            <li><code>$lt</code> - Less than</li>
+                            <li><code>$lte</code> - Less than or equal</li>
+                            <li><code>$eq</code> - Equal</li>
+                            <li><code>$ne</code> - Not equal</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">logic</span>
+                        Logical Operators
+                    </h3>
+                    <div class="block-content">
+                        <ul class="bullet-list">
+                            <li><code>$and</code> - Logical AND</li>
+                            <li><code>$or</code> - Logical OR</li>
+                            <li><code>$not</code> - Logical NOT</li>
+                            <li><code>$nor</code> - Logical NOR</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="code-block">
+                // Example: Find movies with year > 2000 AND rating >= 8
+                {
+                "year": { "$gt": 2000 },
+                "rating": { "$gte": 8 }
+                }
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">13 / 19</div>
+        </div>
+
+        <!-- Slide 14: Working with Query Results -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Working with Query Results</h1>
+            </div>
+            <div class="content-block">
+                <h3 class="block-title">
+                    <span class="material-icons">settings</span>
+                    Query Result Operations
+                </h3>
+                <div class="block-content">
+                    <ul class="bullet-list">
+                        <li><strong>Sorting:</strong> Arrange documents in order</li>
+                        <li><strong>Limiting:</strong> Restrict number of results</li>
+                        <li><strong>Projection:</strong> Select specific fields</li>
+                        <li><strong>_id Field:</strong> Unique identifier</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>Key Points</h3>
+                <ul class="bullet-list" style="color: white;">
+                    <li>Queries are written in JSON format</li>
+                    <li>Filtering based on specific conditions</li>
+                    <li>Query operators enable advanced queries</li>
+                    <li>Each document has a unique _id field</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">14 / 19</div>
+        </div>
+
+        <!-- Slide 15: Sorting, Limiting, Projection -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Sorting, Limiting, Projection</h1>
+            </div>
+            <div class="two-column">
+                <div class="table-container" style="margin: 0;">
+                    <table>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Ascending Sort</strong></td>
+                            <td>Sort data in increasing order</td>
+                            <td><code>{ "year": 1 }</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Descending Sort</strong></td>
+                            <td>Sort data in decreasing order</td>
+                            <td><code>{ "year": -1 }</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Limit</strong></td>
+                            <td>Restrict number of documents</td>
+                            <td>Limit = 2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Include Fields</strong></td>
+                            <td>Show selected fields only</td>
+                            <td><code>{ "title": 1, "year": 1 }</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Exclude _id</strong></td>
+                            <td>Remove _id from output</td>
+                            <td><code>{ "_id": 0 }</code></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="image-container" style="display: flex; align-items: center; justify-content: center; height: 100%; margin: 0;">
+                    <img src="15.jpg" alt="Sort Query in MongoDB Atlas" style="max-width: 100%; max-height: 500px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">15 / 19</div>
+        </div>
+
+        <!-- Slide 16: Understanding _id Field -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Understanding _id Field</h1>
+            </div>
+            <div class="content-grid">
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">fingerprint</span>
+                        Properties
+                    </h3>
+                    <div class="block-content">
+                        <ul class="bullet-list">
+                            <li><strong>Unique:</strong> Each document has unique identifier</li>
+                            <li><strong>Auto-generated:</strong> Created by MongoDB</li>
+                            <li><strong>Immutable:</strong> Cannot be modified</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">code</span>
+                        Example
+                    </h3>
+                    <div class="code-block">
+                        {
+                        "_id": "573a1390f29313caabcd42e8",
+                        "title": "The Great Train Robbery",
+                        "year": 1903
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>Important Note</h3>
+                <p>By default, _id is included in query results unless explicitly excluded using projection:
+                    <code>{ "_id": 0 }</code>
+                </p>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">16 / 19</div>
+        </div>
+
+        <!-- Slide 17: Lab Assignment -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Lab Assignment: Online Shopping System</h1>
+            </div>
+            <div class="content-block">
+                <h3 class="block-title">
+                    <span class="material-icons">assignment</span>
+                    Objective
+                </h3>
+                <div class="block-content">
+                    <p>Perform CRUD operations and apply query techniques on a product database using MongoDB Atlas</p>
+                </div>
+            </div>
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Create Database: <code>shopDB</code> and Collection: <code>products</code></strong>
+            </div>
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Insert 15 product records with fields:</strong>
+                <p>productName, price, category, stock</p>
+            </div>
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Perform various queries using operators</strong>
+            </div>
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Apply CRUD operations</strong>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">17 / 19</div>
+        </div>
+
+        <!-- Slide 18: Conclusion -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">Conclusion</h1>
+            </div>
+            <div class="content-block">
+                <h3 class="block-title">
+                    <span class="material-icons">summarize</span>
+                    What We Learned
+                </h3>
+                <div class="block-content">
+                    <ul class="bullet-list">
+                        <li>MongoDB fundamentals and NoSQL concepts</li>
+                        <li>Setting up MongoDB Atlas</li>
+                        <li>Creating databases and collections</li>
+                        <li>Performing CRUD operations</li>
+                        <li>Using query operators for advanced filtering</li>
+                        <li>Sorting, limiting, and projection techniques</li>
+                        <li>Understanding the _id field</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>Next Steps</h3>
+                <p>This foundation prepares you for backend integration with MongoDB in full stack applications</p>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+                <button class="nav-btn" onclick="nextSlide()">
+                    Next <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="slide-counter">18 / 19</div>
+        </div>
+
+        <!-- Slide 19: References -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">References for MongoDB Learning</h1>
+            </div>
+            <div class="content-grid">
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">menu_book</span>
+                        Official Documentation
+                    </h3>
+                    <div class="block-content">
+                        <ul class="bullet-list">
+                            <li><a href="https://www.mongodb.com/docs/" style="color: #48bb78;">MongoDB Official
+                                    Documentation</a></li>
+                            <li><a href="https://www.mongodb.com/docs/atlas/" style="color: #48bb78;">MongoDB Atlas
+                                    Documentation</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="content-block">
+                    <h3 class="block-title">
+                        <span class="material-icons">school</span>
+                        Online Learning
+                    </h3>
+                    <div class="block-content">
+                        <ul class="bullet-list">
+                            <li><a href="https://learn.mongodb.com/" style="color: #48bb78;">MongoDB University</a></li>
+                            <li><a href="https://www.geeksforgeeks.org/mongodb-tutorial/"
+                                    style="color: #48bb78;">GeeksforGeeks</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="content-block">
+                <h3 class="block-title">
+                    <span class="material-icons">play_circle</span>
+                    Video References
+                </h3>
+                <div class="block-content">
+                    <ul class="bullet-list">
+                        <li>freeCodeCamp.org - MongoDB Full Course</li>
+                        <li>CodeWithHarry - MongoDB Tutorial in Hindi</li>
+                        <li>Programming with Mosh - MongoDB Tutorial for Beginners</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevSlide()">
+                    <span class="material-icons">arrow_back</span> Previous
+                </button>
+            </div>
+            <div class="slide-counter">19 / 19</div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = n;
+            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+            if (currentSlide < 0) currentSlide = 0;
+            slides[currentSlide].classList.add('active');
+            updateSlideCounter();
+            updateNavigationButtons();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function updateSlideCounter() {
+            const counter = document.querySelector('.slide-counter');
+            if (counter) {
+                counter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.querySelector('.nav-btn:first-child');
+            const nextBtn = document.querySelector('.nav-btn:last-child');
+
+            if (prevBtn) {
+                prevBtn.disabled = currentSlide === 0;
+            }
+
+            if (nextBtn) {
+                nextBtn.disabled = currentSlide === totalSlides - 1;
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Initialize
+        updateSlideCounter();
+        updateNavigationButtons();
+    </script>
+</body>
+
+</html>
